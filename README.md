@@ -86,3 +86,8 @@ If deploying the API on Railway, configure the database connection string as a R
 - `MONGO_URL`
 - `MONGO_URI`
 - `DATABASE_URL`
+
+### MongoDB Atlas Network Access
+
+If you're using MongoDB Atlas and see an error about the IP not being whitelisted, update your Atlas
+project **Network Access / IP Access List** to allow connections from Railway (temporary quick fix: `0.0.0.0/0`).

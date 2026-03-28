@@ -10,6 +10,22 @@ const PORT = process.env.PORT || 5000;
 const isMissingDatabaseConfigError = (error) =>
   error && typeof error.message === 'string' && error.message.toLowerCase().includes('connection string is not configured');
 
+const isMongoAtlasWhitelistError = (error) => {
+  if (!error || typeof error.message !== 'string') {
+    return false;
+  }
+
+  const message = error.message.toLowerCase();
+  return (
+    message.includes('mongodb atlas') &&
+    (message.includes('isn’t whitelisted') ||
+      message.includes("isn't whitelisted") ||
+      message.includes('ip that is not whitelisted') ||
+      message.includes('ip whitelist') ||
+      message.includes('access list'))
+  );
+};
+
 const startServer = async () => {
   try {
     let dbConnected = false;
@@ -18,14 +34,24 @@ const startServer = async () => {
       await connectDB();
       dbConnected = true;
     } catch (error) {
-      if (!isMissingDatabaseConfigError(error)) {
-        throw error;
-      }
-
       console.error(error.message);
-      console.error(
-        'Starting API without a database connection. Set MONGODB_URI / MONGODB_URL / MONGO_URL / MONGO_URI / DATABASE_URL in Railway Variables.'
-      );
+
+      if (isMissingDatabaseConfigError(error)) {
+        console.error(
+          'Starting API without a database connection. Set MONGODB_URI / MONGODB_URL / MONGO_URL / MONGO_URI / DATABASE_URL in Railway Variables.'
+        );
+      } else if (isMongoAtlasWhitelistError(error)) {
+        console.error(
+          'MongoDB Atlas blocked the connection (Network Access / IP Access List). Add 0.0.0.0/0 (temporary) or allowlist Railway outbound IPs/private networking.'
+        );
+        console.error(
+          'Starting API without a database connection so the container stays up, but API endpoints that need MongoDB will fail until Atlas allows the connection.'
+        );
+      } else {
+        console.error(
+          'Starting API without a database connection so the container stays up, but API endpoints that need MongoDB will fail until the connection works.'
+        );
+      }
     }
 
     app.locals.dbConnected = dbConnected;
