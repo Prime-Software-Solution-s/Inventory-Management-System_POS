@@ -4,6 +4,10 @@ const notFound = (req, res) => {
 };
 
 const errorHandler = (err, req, res, next) => {
+  if (process.env.LOG_ERRORS !== 'false') {
+    console.error(err);
+  }
+
   let statusCode =
     err.statusCode ||
     err.status ||

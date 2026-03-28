@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const path = require('path');
 
 const authRoutes = require('./routes/authRoutes');
+const legacyAuthRoutes = require('./routes/legacyAuthRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
@@ -19,15 +20,31 @@ const { errorHandler, notFound } = require('./middleware/errorHandler');
 const app = express();
 const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
 const isProduction = process.env.NODE_ENV === 'production';
+const shouldLogRequests = process.env.LOG_REQUESTS === 'true' || !isProduction;
 
 app.use(
   helmet({
     crossOriginResourcePolicy: false,
+    contentSecurityPolicy: {
+      useDefaults: true,
+      directives: {
+        "script-src": ["'self'", "'unsafe-inline'", 'blob:'],
+        "script-src-elem": ["'self'", "'unsafe-inline'", 'blob:'],
+        "worker-src": ["'self'", 'blob:'],
+      },
+    },
   })
 );
+
+if (shouldLogRequests) {
+  app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
+    next();
+  });
+}
 if (!isProduction) {
   // Development: allow any origin so the app works on any localhost port, LAN IP, etc.
-  app.use(cors({ origin: true }));
+  app.use(cors({ origin: true, credentials: true }));
 } else {
   const extraAllowedOrigins = (process.env.EXTRA_CORS_ORIGINS || '')
     .split(',')
@@ -49,6 +66,7 @@ if (!isProduction) {
 
         return callback(new Error(`CORS blocked for origin: ${origin}`));
       },
+      credentials: true,
     })
   );
 }
@@ -60,11 +78,7 @@ if (process.env.NODE_ENV !== 'production') {
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
 app.get('/', (req, res) => {
-  res.json({
-    name: 'InventoryOS API',
-    status: 'ok',
-    health: '/api/health',
-  });
+  res.send('API running');
 });
 
 app.get('/health', (req, res) => {
@@ -84,6 +98,7 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api', legacyAuthRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
