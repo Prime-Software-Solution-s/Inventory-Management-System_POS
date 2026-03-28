@@ -1,0 +1,21 @@
+const HOLD_DURATION_MINUTES = 5;
+const HOLD_DURATION_MS = HOLD_DURATION_MINUTES * 60 * 1000;
+
+const SALE_STATUS = {
+  ON_HOLD: 'on-hold',
+  COMPLETED: 'completed',
+  REFUNDED: 'refunded',
+  EXPIRED: 'expired',
+  CANCELLED: 'cancelled',
+};
+
+const FINALIZED_SALE_STATUSES = [SALE_STATUS.COMPLETED, SALE_STATUS.REFUNDED];
+const INVOICE_COUNTER_KEY = 'sales-invoice-number';
+
+module.exports = {
+  FINALIZED_SALE_STATUSES,
+  HOLD_DURATION_MINUTES,
+  HOLD_DURATION_MS,
+  INVOICE_COUNTER_KEY,
+  SALE_STATUS,
+};
