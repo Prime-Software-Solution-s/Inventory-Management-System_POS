@@ -4,7 +4,7 @@
   "private": true,
   "description": "Modern full-stack inventory management system",
   "engines": {
-    "node": ">=20.0.0",
+    "node": "20.x",
     "npm": ">=10.0.0"
   },
   "packageManager": "npm@11.8.0",
