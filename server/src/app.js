@@ -59,6 +59,22 @@ if (process.env.NODE_ENV !== 'production') {
 }
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
+app.get('/', (req, res) => {
+  res.json({
+    name: 'InventoryOS API',
+    status: 'ok',
+    health: '/api/health',
+  });
+});
+
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    dbConnected: Boolean(req.app.locals.dbConnected),
+    timestamp: new Date().toISOString(),
+  });
+});
+
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
