@@ -74,5 +74,5 @@ Demo users:
 
 ## Verification
 
-- Frontend production build: `npm run build --workspace client`
+- Frontend production build: `npm run build --workspace client` (or `npm run client:build` from the repo root)
 - API load check: `node -e "require('./src/app')"` from `server/`

@@ -3,13 +3,20 @@
   "version": "1.0.0",
   "private": true,
   "description": "Modern full-stack inventory management system",
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "packageManager": "npm@11.8.0",
   "workspaces": [
     "client",
     "server"
   ],
   "scripts": {
     "dev": "concurrently \"npm run dev --workspace client\" \"npm run dev --workspace server\"",
-    "build": "npm run build --workspace client",
+    "start": "npm run start --workspace server",
+    "build": "npm run build --workspace server --if-present",
+    "client:build": "npm run build --workspace client",
     "client:dev": "npm run dev --workspace client",
     "server:dev": "npm run dev --workspace server",
     "seed": "npm run seed --workspace server"

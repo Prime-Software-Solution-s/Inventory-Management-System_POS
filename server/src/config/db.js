@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 
 const connectDB = async () => {
-  const mongoUri = process.env.MONGODB_URI;
+  const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URL || process.env.DATABASE_URL;
 
   if (!mongoUri) {
-    throw new Error('MONGODB_URI is not configured.');
+    throw new Error('Database connection string is not configured (set MONGODB_URI, MONGO_URL, or DATABASE_URL).');
   }
 
   mongoose.set('strictQuery', true);
