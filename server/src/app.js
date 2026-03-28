@@ -25,14 +25,9 @@ const shouldLogRequests = process.env.LOG_REQUESTS === 'true' || !isProduction;
 app.use(
   helmet({
     crossOriginResourcePolicy: false,
-    contentSecurityPolicy: {
-      useDefaults: true,
-      directives: {
-        "script-src": ["'self'", "'unsafe-inline'", 'blob:'],
-        "script-src-elem": ["'self'", "'unsafe-inline'", 'blob:'],
-        "worker-src": ["'self'", 'blob:'],
-      },
-    },
+    // This service is an API (JSON), not a browser-rendered app.
+    // CSP belongs on the frontend (Vercel) where blob scripts/workers may be needed.
+    contentSecurityPolicy: false,
   })
 );
 
@@ -78,6 +73,14 @@ if (process.env.NODE_ENV !== 'production') {
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
 app.get('/', (req, res) => {
+  if (isProduction && clientUrl && !clientUrl.includes('localhost')) {
+    return res.redirect(302, clientUrl);
+  }
+
+  return res.send('API running');
+});
+
+app.get('/api', (req, res) => {
   res.send('API running');
 });
 
