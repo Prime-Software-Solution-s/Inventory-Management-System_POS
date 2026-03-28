@@ -7,11 +7,33 @@ const { startHeldSaleCleanupJob } = require('./services/saleWorkflowService');
 
 const PORT = process.env.PORT || 5000;
 
+const isMissingDatabaseConfigError = (error) =>
+  error && typeof error.message === 'string' && error.message.toLowerCase().includes('connection string is not configured');
+
 const startServer = async () => {
   try {
-    await connectDB();
-    await bootstrapAdmin();
-    startHeldSaleCleanupJob();
+    let dbConnected = false;
+
+    try {
+      await connectDB();
+      dbConnected = true;
+    } catch (error) {
+      if (!isMissingDatabaseConfigError(error)) {
+        throw error;
+      }
+
+      console.error(error.message);
+      console.error(
+        'Starting API without a database connection. Set MONGODB_URI / MONGODB_URL / MONGO_URL / MONGO_URI / DATABASE_URL in Railway Variables.'
+      );
+    }
+
+    app.locals.dbConnected = dbConnected;
+
+    if (dbConnected) {
+      await bootstrapAdmin();
+      startHeldSaleCleanupJob();
+    }
     const server = app.listen(PORT, () => {
       console.log(`Server listening on port ${PORT}`);
     });

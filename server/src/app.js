@@ -62,6 +62,7 @@ app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
+    dbConnected: Boolean(req.app.locals.dbConnected),
     timestamp: new Date().toISOString(),
   });
 });

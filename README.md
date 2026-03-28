@@ -76,3 +76,13 @@ Demo users:
 
 - Frontend production build: `npm run build --workspace client` (or `npm run client:build` from the repo root)
 - API load check: `node -e "require('./src/app')"` from `server/`
+
+## Railway (API)
+
+If deploying the API on Railway, configure the database connection string as a Railway Variable using one of:
+
+- `MONGODB_URI` (recommended)
+- `MONGODB_URL`
+- `MONGO_URL`
+- `MONGO_URI`
+- `DATABASE_URL`
